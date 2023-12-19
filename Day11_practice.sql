@@ -62,3 +62,30 @@ LEFT JOIN page_likes
 ON pages.page_id=page_likes.page_id
 WHERE page_likes.user_id IS NULL
 ORDER BY pages.page_id
+
+-- Mid test
+-- BT 1
+SELECT DISTINCT(replacement_cost)
+FROM film
+ORDER BY replacement_cost ASC
+
+-- BT 2
+SELECT 
+CASE 
+	WHEN replacement_cost BETWEEN 9.99 AND 19.99 THEN 'low'
+	WHEN replacement_cost BETWEEN 20.00 AND 24.99 THEN 'medium'
+	WHEN replacement_cost BETWEEN 25.00 AND 29.99 THEN 'high'
+END category,
+COUNT(film_id)
+FROM film
+GROUP BY category
+
+-- BT 3
+SELECT film.title, film.length, category.name
+FROM film 
+LEFT JOIN film_category ON film.film_id=film_category.film_id
+LEFT JOIN category ON film_category.category_id=category.category_id
+WHERE category.name IN ('Drama','Sports')
+ORDER BY film.length DESC
+
+-- BT 4
