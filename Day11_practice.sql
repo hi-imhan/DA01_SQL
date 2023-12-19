@@ -89,3 +89,46 @@ WHERE category.name IN ('Drama','Sports')
 ORDER BY film.length DESC
 
 -- BT 4
+SELECT category.name,
+COUNT(film.film_id)
+FROM film 
+LEFT JOIN film_category ON film.film_id=film_category.film_id
+LEFT JOIN category ON film_category.category_id=category.category_id
+GROUP BY category.name
+ORDER BY COUNT(film.film_id) DESC
+
+-- BT 5
+SELECT a.first_name, a.last_name,
+COUNT (b.film_id)
+FROM actor AS a
+LEFT JOIN film_actor AS b ON a.actor_id=b.actor_id
+GROUP BY a.first_name, a.last_name
+ORDER BY COUNT (b.film_id) DESC
+
+-- BT 6
+SELECT a.address
+FROM address AS a
+LEFT JOIN customer AS b
+ON a.address_id=b.address_id
+WHERE b.customer_id IS NULL
+
+-- BT 7
+SELECT a.city,
+SUM(d.amount)
+FROM city AS a
+JOIN address AS b ON a.city_id=b.city_id 
+JOIN customer AS c ON b.address_id=c.address_id
+JOIN payment AS d ON c.customer_id=d.customer_id
+GROUP BY city 
+ORDER BY SUM(d.amount) DESC
+
+-- BT 8
+SELECT CONCAT(a.city,',',' ', e.country),
+SUM(d.amount)
+FROM city AS a
+JOIN address AS b ON a.city_id=b.city_id 
+JOIN customer AS c ON b.address_id=c.address_id
+JOIN payment AS d ON c.customer_id=d.customer_id
+JOIN country AS e ON a.country_id=e.country_id
+GROUP BY CONCAT(a.city,',',' ', e.country)
+ORDER BY SUM(d.amount) DESC
