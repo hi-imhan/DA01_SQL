@@ -35,3 +35,61 @@ END) AS student
 FROM CTE
 
 -- BT 4
+WITH CTE AS
+(SELECT visited_on,
+SUM(total)OVER(ORDER BY visited_on ASC ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS amount,
+ROUND(AVG(total)OVER(ORDER BY visited_on ASC ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),2) AS average_amount,
+ROW_NUMBER()OVER(ORDER BY visited_on) AS day_count
+FROM (SELECT visited_on,
+SUM(amount) AS total
+FROM customer
+GROUP BY visited_on) AS table1)
+  
+SELECT visited_on, amount, average_amount
+FROM CTE
+WHERE day_count>6
+ORDER BY visited_on
+
+-- BT 5
+/*tiv - 2016
+count tiv2015, count lat,lon =1*/
+WITH CTE AS
+(SELECT *,
+COUNT(*)OVER(PARTITION BY tiv_2015) AS tiv_appearance, 
+COUNT(*)OVER(PARTITION BY lat,lon) AS appearance
+FROM insurance)
+SELECT ROUND(SUM(tiv_2016),2) AS tiv_2016
+FROM CTE 
+WHERE tiv_appearance>=2 AND appearance=1
+
+-- bt 6
+/*high eaners =top 3 unique salaries in each dept*/
+WITH CTE AS
+(SELECT c.department, c.name, c.salary,
+DENSE_RANK()OVER(PARTITION BY c.department ORDER BY c.salary DESC) AS r
+FROM(SELECT a.id, a.name, a.salary, b.name AS department
+FROM employee AS a 
+JOIN department AS b
+ON a.departmentId=b.id) AS c)
+SELECT department, name AS employee, salary
+FROM CTE
+WHERE r<=3
+
+-- BT 7
+WITH CTE AS
+(SELECT turn, person_name, weight,
+SUM(weight)OVER(ORDER BY turn) AS total_weight
+FROM queue) 
+SELECT person_name
+FROM queue
+WHERE queue.turn=(SELECT MAX(turn) FROM CTE WHERE total_weight<=1000)
+
+-- BT 8
+(SELECT DISTINCT product_id,
+FIRST_VALUE(new_price)OVER(PARTITION BY product_id ORDER BY change_date DESC) AS price
+FROM products
+WHERE change_date<='2019-08-16')
+UNION
+(SELECT DISTINCT product_id, 10 AS price
+FROM products
+WHERE product_id NOT IN (SELECT DISTINCT product_id FROM products WHERE change_date<='2019-08-16'))
