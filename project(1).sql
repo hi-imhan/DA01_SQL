@@ -35,10 +35,15 @@ OR sales IS NULL
 OR orderdate IS NULL
 
 --- 
-SELECT contactfullname,
-LEFT (contactfullname, POSITION('-' IN contactfullname)-1) AS first_name,
-RIGHT(contactfullname,LENGTH(contactfullname)-POSITION('-' IN contactfullname)) AS last_name
-FROM public.sales_dataset_rfm_prj
+ALTER TABLE sales_dataset_rfm_prj
+ADD COLUMN contactfirstname,
+ADD COLUMN contactlastname
+
+
+  SELECT contactfullname,
+  LEFT (contactfullname, POSITION('-' IN contactfullname)-1) AS first_name,
+  RIGHT(contactfullname,LENGTH(contactfullname)-POSITION('-' IN contactfullname)) AS last_name
+  FROM public.sales_dataset_rfm_prj
 
 
 
