@@ -45,5 +45,11 @@ ADD COLUMN contactlastname
   RIGHT(contactfullname,LENGTH(contactfullname)-POSITION('-' IN contactfullname)) AS last_name
   FROM public.sales_dataset_rfm_prj
 
+UPPER(LEFT(LEFT(contactfullname, POSITION('-' IN contactfullname)-1),1))||
+RIGHT((LEFT(contactfullname, POSITION('-' IN contactfullname)-1)),
+			LENGTH(LEFT (contactfullname, POSITION('-' IN contactfullname)-1))-1) AS firstname
+UPPER(LEFT(RIGHT(contactfullname,LENGTH(contactfullname)-POSITION('-' IN contactfullname)),1))||
+RIGHT((RIGHT(contactfullname,LENGTH(contactfullname)-POSITION('-' IN contactfullname))),
+			LENGTH(RIGHT(contactfullname,LENGTH(contactfullname)-POSITION('-' IN contactfullname)))-1) AS lastname
 
 
