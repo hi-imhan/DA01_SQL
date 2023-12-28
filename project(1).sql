@@ -74,3 +74,19 @@ month_id=EXTRACT(month FROM orderdate),
 year_id=EXTRACT(year FROM orderdate)
 
 --- 5) Hãy tìm outlier (nếu có) cho cột QUANTITYORDERED và hãy chọn cách xử lý cho bản ghi đó (2 cách)
+-- C1: Boxplot
+WITH min_max_value AS
+(SELECT Q1-1.5*IQR AS min_value, Q1+1.5*IQR AS max_value
+FROM
+(SELECT 
+percentile_cont(0.25) WITHIN GROUP(ORDER BY quantityordered) AS Q1,
+percentile_cont(0.5) WITHIN GROUP(ORDER BY quantityordered) AS Q2,
+percentile_cont(0.75) WITHIN GROUP(ORDER BY quantityordered)-percentile_cont(0.25) WITHIN GROUP(ORDER BY quantityordered) AS IQR
+FROM public.sales_dataset_rfm_prj) AS a)
+
+SELECT quantityordered
+FROM public.sales_dataset_rfm_prj
+WHERE quantityordered<(SELECT min_value FROM min_max_value)
+OR quantityordered>(SELECT max_value FROM min_max_value)
+
+--C2: Z-score
