@@ -82,11 +82,35 @@ FROM
 percentile_cont(0.25) WITHIN GROUP(ORDER BY quantityordered) AS Q1,
 percentile_cont(0.5) WITHIN GROUP(ORDER BY quantityordered) AS Q2,
 percentile_cont(0.75) WITHIN GROUP(ORDER BY quantityordered)-percentile_cont(0.25) WITHIN GROUP(ORDER BY quantityordered) AS IQR
-FROM public.sales_dataset_rfm_prj) AS a)
-
-SELECT quantityordered
+FROM public.sales_dataset_rfm_prj) AS a),
+TWT_outliers AS 
+(SELECT quantityordered
 FROM public.sales_dataset_rfm_prj
 WHERE quantityordered<(SELECT min_value FROM min_max_value)
-OR quantityordered>(SELECT max_value FROM min_max_value)
+OR quantityordered>(SELECT max_value FROM min_max_value))
 
+/*update outlier = gia tri trung binh*/	
+UPDATE public.sales_dataset_rfm_prj
+SET quantityordered=(SELECT AVG(quantityordered) FROM public.sales_dataset_rfm_prj)
+WHERE quantityordered IN (SELECT quantityordered FROM TWT_outliers)
+	
+/*xoa outlier*/
+DELETE FROM public.sales_dataset_rfm_prj
+WHERE quantityordered IN (SELECT quantityordered FROM TWT_outliers)
+	
 --C2: Z-score
+WITH CTE AS
+(SELECT ordernumber, quantityordered,
+(SELECT AVG(quantityordered) FROM public.sales_dataset_rfm_prj) AS avg,
+(SELECT stddev(quantityordered) FROM public.sales_dataset_rfm_prj) AS standev
+FROM public.sales_dataset_rfm_prj)
+
+SELECT ordernumber, quantityordered,
+(quantityordered-avg)/standev AS zscore
+FROM CTE
+WHERE ABS((quantityordered-avg)/standev)>2
+
+
+--- 6) Sau khi làm sạch dữ liệu, hãy lưu vào bảng mới  tên là SALES_DATASET_RFM_PRJ_CLEAN
+CREATE TABLE sales_dataset_rfm_prj_clean AS
+(SELECT * FROM sales_dataset_rfm_prj)
