@@ -57,4 +57,20 @@ RIGHT((LEFT(contactfullname, POSITION('-' IN contactfullname)-1)),
 			LENGTH(LEFT (contactfullname, POSITION('-' IN contactfullname)-1))-1)	
 	
 --- 4) Thêm cột QTR_ID, MONTH_ID, YEAR_ID lần lượt là Qúy, tháng, năm được lấy ra từ ORDERDATE 
+ALTER TABLE public.sales_dataset_rfm_prj
+ADD COLUMN qrt_id integer
+ADD COLUMN month_id integer,
+ADD COLUMN year_id integer
 
+UPDATE public.sales_dataset_rfm_prj
+SET qrt_id=
+(CASE 
+	WHEN EXTRACT(month FROM orderdate) IN (1,2,3) THEN 1
+	WHEN EXTRACT(month FROM orderdate) IN (4,5,6) THEN 2
+	WHEN EXTRACT(month FROM orderdate) IN (7,8,9) THEN 3
+	ELSE 4
+END),
+month_id=EXTRACT(month FROM orderdate),
+year_id=EXTRACT(year FROM orderdate)
+
+--- 5) Hãy tìm outlier (nếu có) cho cột QUANTITYORDERED và hãy chọn cách xử lý cho bản ghi đó (2 cách)
