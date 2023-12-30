@@ -13,7 +13,7 @@ ORDER BY 1
 -- Cau 2
 SELECT FORMAT_DATE('%Y-%m',created_at) AS purchase_time,
 COUNT(order_id) AS total_order,
-SUM(sale_price)/COUNT(order_id) AS avg_revenue
+SUM(sale_price)/COUNT(order_id) AS avg_revenue --- hoặc avg(sale_price)
 FROM bigquery-public-data.thelook_ecommerce.order_items 
 WHERE created_at BETWEEN '2019-01-01' AND '2022-04-30'
 AND status='Shipped'
@@ -34,12 +34,13 @@ FROM bigquery-public-data.thelook_ecommerce.users
 ORDER BY age)
 WHERE tag IN ('youngest', 'oldest'))
 
-SELECT age, COUNT(*)
+SELECT age, gender, COUNT(*)
 FROM CTE
-GROUP BY 1
+GROUP BY 1,2
+ORDER BY 1
 /*insight: 
-nhỏ nhất: 12t - 1694
-lớn nhất: 70t - 1668*/
+nhỏ nhất: 12t - F: 871 | M:823
+lớn nhất: 70t - F: 812 | M:856*/
 
 -- Cau 4
 SELECT month, product_id, name, cost, sale_price, profit, rank
