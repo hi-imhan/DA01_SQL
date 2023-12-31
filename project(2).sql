@@ -91,3 +91,37 @@ FROM CTE
 ORDER BY month
 
 
+---- cohort 
+WITH CTE AS
+(SELECT user_id, FORMAT_DATE('%Y-%m',first_purchase) AS cohort_date,
+(EXTRACT(year FROM created_at)-EXTRACT(year FROM first_purchase))*12 +
+(EXTRACT(month FROM created_at)-EXTRACT(month FROM first_purchase))+1 AS index
+FROM(SELECT user_id, 
+MIN(created_at)OVER(PARTITION BY user_id) AS first_purchase, created_at
+FROM bigquery-public-data.thelook_ecommerce.orders) AS a),
+a AS
+(SELECT cohort_date,index,COUNT(DISTINCT user_id) AS cnt
+FROM CTE
+WHERE index<=4
+GROUP BY 1,2
+ORDER BY 1)
+
+, cohort_user AS
+(SELECT 
+cohort_date,
+SUM(case when index=1 then cnt else 0 end) as m1,
+SUM(case when index=2 then cnt else 0 end) as m2,
+SUM(case when index=3 then cnt else 0 end) as m3,
+SUM(case when index=4 then cnt else 0 end) as m4
+FROM a
+GROUP BY cohort_date
+ORDER BY cohort_date)
+
+SELECT cohort_date,
+round(100.00*m1/m1,2)||'%' as m1,
+round(100.00*m2/m1,2)||'%' as m2,
+round(100.00*m3/m1,2)||'%' as m3,
+round(100.00*m4/m1,2)||'%' as m4
+FROM cohort_user
+
+
