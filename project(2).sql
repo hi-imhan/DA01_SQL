@@ -106,4 +106,11 @@ WHERE index<=4
 GROUP BY 1,2
 ORDER BY 1
 
+--- chart excel: https://docs.google.com/spreadsheets/d/11_Hl_W3mi3vFWAD7hYnDLpo9QgzpPqqE/edit?usp=drive_link&ouid=116910160028752819005&rtpof=true&sd=true
+/*insight: trong năm 2023 retention được cải thiện (tăng dần) và ổn định hơn qua từng tháng
+xu hướng khách hàng thường rời bỏ công ty vào tháng thứ 3
 
+Solution: đối với trang TMDT về thời trang, để giữ chân được khách hàng cần:
+- Tăng 1) số lượng seller trên sàn hoặc 2) số lượng sản phẩm mới, kịp xu hướng (mỗi tháng)
+- Personalize customer experience: dựa trên data về đơn hàng, đưa ra insight của từng nhóm KH (độ tuổi,style quần áo) 
+và giới thiệu sản phẩm dành cho họ bằng email marketing*/
