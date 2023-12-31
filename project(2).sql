@@ -66,3 +66,28 @@ WHERE FORMAT_DATE('%Y-%m-%d',a.created_at)<='2022-04-15' AND FORMAT_DATE('%Y-%m-
 GROUP BY FORMAT_DATE('%Y-%m-%d',a.created_at),
 b.product_category
 ORDER BY 1
+
+----- part 2
+WITH CTE AS
+(SELECT FORMAT_DATE('%Y-%m', a.created_at) AS month,
+EXTRACT (year FROM a.created_at) AS year, c.category,
+SUM(b.sale_price) AS TPV, 
+COUNT(DISTINCT a.order_id) AS TPO,
+SUM(c.cost) AS total_cost, 
+SUM(b.sale_price)-SUM(c.cost) AS total_profit,
+(SUM(b.sale_price)-SUM(c.cost))/SUM(c.cost) AS profit_to_cost_ratio
+FROM bigquery-public-data.thelook_ecommerce.orders AS a
+JOIN bigquery-public-data.thelook_ecommerce.order_items as b
+ON a.order_id=b.order_id
+JOIN bigquery-public-data.thelook_ecommerce.products AS c
+ON b.product_id=c.id
+GROUP BY 1,2,3)
+
+SELECT month, year, category,TPV, TPO,
+((LEAD(TPV)OVER(PARTITION BY category ORDER BY month)-TPV)/TPV)||'%'AS revenue_growth,
+((LEAD(TPO)OVER(PARTITION BY category ORDER BY month)-TPO)/TPO)||'%'AS order_growth,
+total_cost, total_profit,profit_to_cost_ratio
+FROM CTE
+ORDER BY month
+
+
